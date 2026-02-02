@@ -6,7 +6,7 @@ import {
   Lock, Unlock, Zap, Trophy, History, Waves, Wind,
   CloudRain, Coffee, Radio, Calendar, Trash2, Plus, AlertCircle, Clock,
   CheckCircle2, FileAudio, Upload, TrendingUp, AlertTriangle, ScreenShareOff,
-  RotateCcw, Activity, VolumeX, Sparkles, Brain
+  RotateCcw, Activity, VolumeX, Sparkles, Brain, Save, Link as LinkIcon
 } from 'lucide-react';
 import { AppState, FocusMode, FocusSound, FocusSession, StudySession } from '../types';
 
@@ -32,6 +32,10 @@ const FocusEngine: React.FC<FocusEngineProps> = ({ state, setState }) => {
   const [focusGoal, setFocusGoal] = useState('');
   const [isExamMode, setIsExamMode] = useState(false);
   
+  // Custom Track Modal
+  const [isAddingTrack, setIsAddingTrack] = useState(false);
+  const [newTrack, setNewTrack] = useState({ name: '', url: '', type: 'lofi' as FocusSound['type'] });
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<number | null>(null);
 
@@ -132,7 +136,33 @@ const FocusEngine: React.FC<FocusEngineProps> = ({ state, setState }) => {
   const selectTrack = (sound: FocusSound) => {
     setCurrentSound(sound);
     setIsAudioPlaying(true);
-    if (audioRef.current) audioRef.current.load();
+    if (audioRef.current) {
+      audioRef.current.src = sound.url;
+      audioRef.current.load();
+    }
+  };
+
+  const addCustomTrack = () => {
+    if (!newTrack.name || !newTrack.url) return;
+    const track: FocusSound = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: newTrack.name,
+      url: newTrack.url,
+      type: newTrack.type
+    };
+    setState(prev => ({ ...prev, focusSounds: [...prev.focusSounds, track] }));
+    setIsAddingTrack(false);
+    setNewTrack({ name: '', url: '', type: 'lofi' });
+  };
+
+  const deleteTrack = (id: string) => {
+    if (confirm("Permanently remove this track from your neural library?")) {
+      setState(prev => ({ ...prev, focusSounds: prev.focusSounds.filter(s => s.id !== id) }));
+      if (currentSound.id === id) {
+        setCurrentSound(initialSound);
+        setIsAudioPlaying(false);
+      }
+    }
   };
 
   const handleStart = () => {
@@ -337,10 +367,11 @@ const FocusEngine: React.FC<FocusEngineProps> = ({ state, setState }) => {
                   </div>
                </div>
                <button 
-                onClick={() => setIsAudioPlaying(!isAudioPlaying)} 
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isAudioPlaying ? 'bg-indigo-600 text-white shadow-lg animate-pulse' : 'bg-slate-50 text-slate-300 hover:text-indigo-600'}`}
+                onClick={() => setIsAddingTrack(true)} 
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all bg-slate-100 text-slate-500 hover:bg-indigo-600 hover:text-white shadow-sm`}
+                title="Add Custom Signal"
                >
-                 {isAudioPlaying ? <Waves size={24}/> : <Play size={24}/>}
+                 <Plus size={20}/>
                </button>
             </div>
 
@@ -349,26 +380,36 @@ const FocusEngine: React.FC<FocusEngineProps> = ({ state, setState }) => {
                {state.focusSounds.map(s => {
                  const isActiveTrack = currentSound.id === s.id;
                  return (
-                   <button 
-                    key={s.id} 
-                    onClick={() => selectTrack(s)} 
-                    className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 group relative overflow-hidden ${isActiveTrack ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl' : 'bg-slate-50 text-slate-500 border-transparent hover:bg-indigo-50/50'}`}
-                   >
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isActiveTrack ? 'bg-white/20' : 'bg-white shadow-sm text-indigo-500'}`}>
-                         {isActiveTrack && isAudioPlaying ? <Activity size={20} className="animate-bounce" /> : <Music size={20}/>}
-                      </div>
-                      <div className="text-left flex-1 min-w-0">
-                         <p className={`font-black text-[10px] uppercase tracking-widest truncate ${isActiveTrack ? 'text-white' : 'text-slate-700'}`}>{s.name}</p>
-                         <p className={`text-[8px] font-bold uppercase tracking-tight opacity-60`}>{s.type} signal</p>
-                      </div>
-                      {isActiveTrack && isAudioPlaying && (
-                        <div className="flex gap-0.5 items-end h-3">
-                           <div className="w-1 bg-white/40 h-2 rounded-full animate-[bounce_0.8s_infinite]"></div>
-                           <div className="w-1 bg-white/40 h-3 rounded-full animate-[bounce_1s_infinite]"></div>
-                           <div className="w-1 bg-white/40 h-2 rounded-full animate-[bounce_0.6s_infinite]"></div>
+                   <div key={s.id} className="relative group">
+                     <button 
+                      onClick={() => selectTrack(s)} 
+                      className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 relative overflow-hidden ${isActiveTrack ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl' : 'bg-slate-50 text-slate-500 border-transparent hover:bg-indigo-50/50'}`}
+                     >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isActiveTrack ? 'bg-white/20' : 'bg-white shadow-sm text-indigo-500'}`}>
+                           {isActiveTrack && isAudioPlaying ? <Activity size={20} className="animate-bounce" /> : <Music size={20}/>}
                         </div>
-                      )}
-                   </button>
+                        <div className="text-left flex-1 min-w-0">
+                           <p className={`font-black text-[10px] uppercase tracking-widest truncate ${isActiveTrack ? 'text-white' : 'text-slate-700'}`}>{s.name}</p>
+                           <p className={`text-[8px] font-bold uppercase tracking-tight opacity-60`}>{s.type} signal</p>
+                        </div>
+                        {isActiveTrack && isAudioPlaying && (
+                          <div className="flex gap-0.5 items-end h-3">
+                             <div className="w-1 bg-white/40 h-2 rounded-full animate-[bounce_0.8s_infinite]"></div>
+                             <div className="w-1 bg-white/40 h-3 rounded-full animate-[bounce_1s_infinite]"></div>
+                             <div className="w-1 bg-white/40 h-2 rounded-full animate-[bounce_0.6s_infinite]"></div>
+                          </div>
+                        )}
+                     </button>
+                     {/* Delete Track for user added sounds - only show on hover if not active */}
+                     {!isActiveTrack && s.id.length > 5 && (
+                       <button 
+                        onClick={(e) => { e.stopPropagation(); deleteTrack(s.id); }} 
+                        className="absolute right-2 top-2 p-1 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                       >
+                         <X size={14}/>
+                       </button>
+                     )}
+                   </div>
                  );
                })}
             </div>
@@ -389,6 +430,12 @@ const FocusEngine: React.FC<FocusEngineProps> = ({ state, setState }) => {
                   </div>
                   <span className="text-[10px] font-black text-slate-400 tabular-nums w-8">{volume}%</span>
                </div>
+               <button 
+                onClick={() => setIsAudioPlaying(!isAudioPlaying)} 
+                className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[10px] tracking-widest ${isAudioPlaying ? 'bg-rose-50 text-rose-600' : 'bg-indigo-600 text-white shadow-lg'}`}
+               >
+                 {isAudioPlaying ? <><Pause size={14}/> Stop Signal</> : <><Play size={14}/> Start Signal</>}
+               </button>
             </div>
          </div>
 
@@ -426,6 +473,61 @@ const FocusEngine: React.FC<FocusEngineProps> = ({ state, setState }) => {
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl"></div>
          </div>
       </div>
+
+      {/* Add Track Modal */}
+      {isAddingTrack && (
+        <div className="fixed inset-0 z-[700] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl animate-in fade-in" onClick={() => setIsAddingTrack(false)}></div>
+          <div className="relative bg-white w-full max-w-md rounded-[44px] p-8 md:p-12 shadow-2xl space-y-10 animate-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center border-b pb-6">
+              <h3 className="text-2xl font-black tracking-tight">Signal Ingestion</h3>
+              <button onClick={() => setIsAddingTrack(false)} className="p-2 text-slate-300 hover:text-rose-500 transition-colors"><X size={28}/></button>
+            </div>
+            <div className="space-y-6">
+               <div className="space-y-1">
+                 <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Signal Name</label>
+                 <input 
+                  type="text" 
+                  value={newTrack.name} 
+                  onChange={e => setNewTrack({...newTrack, name: e.target.value})} 
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 font-black text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all" 
+                  placeholder="e.g. Synthwave Study"
+                 />
+               </div>
+               <div className="space-y-1">
+                 <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Source URL (Direct Audio Link)</label>
+                 <div className="relative">
+                    <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18}/>
+                    <input 
+                      type="text" 
+                      value={newTrack.url} 
+                      onChange={e => setNewTrack({...newTrack, url: e.target.value})} 
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-5 font-black text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all" 
+                      placeholder="https://example.com/audio.mp3"
+                    />
+                 </div>
+               </div>
+               <div className="space-y-1">
+                 <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Frequency Type</label>
+                 <select 
+                  value={newTrack.type} 
+                  onChange={e => setNewTrack({...newTrack, type: e.target.value as any})} 
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 font-black text-sm outline-none"
+                 >
+                   <option value="lofi">Lo-Fi Beat</option>
+                   <option value="binaural">Binaural Wave</option>
+                   <option value="nature">Natural Ambience</option>
+                   <option value="classical">Classical Composition</option>
+                   <option value="white">White Noise</option>
+                 </select>
+               </div>
+            </div>
+            <button onClick={addCustomTrack} className="w-full py-6 bg-indigo-600 text-white rounded-[28px] font-black text-xs uppercase tracking-widest shadow-2xl active:scale-95 transition-all shadow-indigo-200 flex items-center justify-center gap-3">
+              <Save size={18}/> Commit to Library
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Dynamic Background Sync */}
       <div className={`fixed inset-0 pointer-events-none transition-all duration-1000 bg-[radial-gradient(circle_at_50%_50%,_var(--tw-gradient-stops))] ${isStudyPhase ? (isExamMode ? 'from-rose-500/10' : 'from-indigo-500/10') : 'from-emerald-500/10'} via-transparent to-transparent opacity-60 -z-10`}></div>
