@@ -1,0 +1,9 @@
+{
+  "name": "4 rebirth",
+  "description": "A comprehensive life and study operating system for exam aspirants, featuring study tracking, syllabus management, mock test analysis, and AI-driven insights.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera",
+    "geolocation"
+  ]
+}

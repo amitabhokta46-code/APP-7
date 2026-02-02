@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExamOS - Aspirant OS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Dark Mode Overrides */
+    .dark {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    
+    /* Night Mode Overrides */
+    .night {
+      --bg-main: #000000;
+      --bg-card: #0a0a0a;
+      --bg-hover: #171717;
+      --text-main: #e2e8f0;
+      --text-muted: #64748b;
+      --border: #262626;
+    }
+
+    .dark body, .night body { 
+      background-color: var(--bg-main) !important; 
+      color: var(--text-main) !important; 
+    }
+
+    .dark .bg-white, .night .bg-white,
+    .dark .bg-slate-50, .night .bg-slate-50,
+    .dark aside, .night aside,
+    .dark header, .night header { 
+      background-color: var(--bg-card) !important; 
+      color: var(--text-main) !important; 
+      border-color: var(--border) !important; 
+    }
+
+    .dark .text-slate-900, .night .text-slate-900,
+    .dark .text-slate-800, .night .text-slate-800,
+    .dark .text-slate-700, .night .text-slate-700 { 
+      color: var(--text-main) !important; 
+    }
+
+    .dark .text-slate-500, .night .text-slate-500,
+    .dark .text-slate-400, .night .text-slate-400 { 
+      color: var(--text-muted) !important; 
+    }
+
+    .dark .border-slate-50, .night .border-slate-50,
+    .dark .border-slate-100, .night .border-slate-100,
+    .dark .border-slate-200, .night .border-slate-200 { 
+      border-color: var(--border) !important; 
+    }
+
+    .dark .hover\:bg-slate-50:hover, .night .hover\:bg-slate-50:hover,
+    .dark .hover\:bg-slate-100:hover, .night .hover\:bg-slate-100:hover {
+      background-color: var(--bg-hover) !important;
+    }
+
+    .dark .shadow-sm, .night .shadow-sm {
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    }
+    
+    .dark .bg-slate-900, .night .bg-slate-900 {
+      background-color: #020617 !important;
+    }
+    
+    /* Global Transition for smooth mode switching */
+    * {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.1s ease;
+    }
+
+    /* Keypad for App Lock */
+    .keypad-btn {
+      @apply w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-xl font-bold hover:bg-indigo-600 hover:text-white transition-all active:scale-95;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "firebase/app": "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js",
+    "firebase/": "https://esm.sh/firebase@^12.8.0/"
+  }
+}
+</script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div id="root"></div>
+</body>
+</html>
